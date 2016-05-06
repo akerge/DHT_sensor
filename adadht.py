@@ -19,15 +19,17 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import sys
-import time
+import sys, time
+
 import Adafruit_DHT
+
+from time import strftime
 
 
 # Parse command line parameters.
 sensor_args = { '11': Adafruit_DHT.DHT11,
-		'22': Adafruit_DHT.DHT22,
-		'2302': Adafruit_DHT.AM2302 }
+				'22': Adafruit_DHT.DHT22,
+				'2302': Adafruit_DHT.AM2302 }
 if len(sys.argv) == 3 and sys.argv[1] in sensor_args:
 	sensor = sensor_args[sys.argv[1]]
 	pin = sys.argv[2]
@@ -48,12 +50,14 @@ humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 # guarantee the timing of calls to read the sensor).  
 # If this happens try again!
 
-# copy of Adafruit_DHT.py and will try to write the readings to file
-
-f=open('temp.txt', 'a')
-
-if humidity is not None and temperature is not None:
-	f.write("%.02f\n" % temperature, humidity)
-else:
-	f.write('Measurement Error')
-time.sleep(900)
+# adding my own necessary crap:
+while True:
+	f=open('temp.txt', 'a')
+	timeNow=strftime("%a, %d %b %Y %H:%M:%S")
+	if humidity is not None and temperature is not None:
+		f.write(timeNow)
+		f.write(' ')
+		f.write('Temp={0:0.1f}*  Humidity={1:0.1f}%\n'.format(temperature, humidity))
+	else:
+		print 'Failed to get reading. Try again!'
+	time.sleep(60)
